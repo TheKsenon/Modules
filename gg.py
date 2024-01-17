@@ -29,4 +29,4 @@ class EditMod(loader.Module):
         if message.raw_text.startswith('/edit'):
             return
 
-        await message.edit(new_message
+        await message.edit(new_message)
