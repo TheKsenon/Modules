@@ -1,106 +1,42 @@
-#This code is created by "vseCoder". I just changed link.
-version = (1, 0, 0)
-
-from telethon import functions
-from telethon.tl.types import Message
-import asyncio
-from telethon.tl.functions.channels import JoinChannelRequest
-import logging
-
-from .. import loader, utils  # type: ignore
-
-logger = logging.getLogger(__name__)
-
+from .. import loader
+import time
 
 @loader.tds
-class ChatGPTfreeMod(loader.Module):
-    """
-    Модуль для бесплатного разговора с ChatGPT. Быстро, чисто, функционально.
-    """
+class FreeGPTMod(loader.Module):
+    """Модуль для отправки запроса к @NeuroConnect_Bot с использованием промпта."""
 
-    strings = {
-        "name": "ChatGPTfree",
-        "loading": """🔁 Ваш запрос был отправлен ИИ. Ожидайте ответа.
-
-Могут быть проблемы, если бот не ответил — ждите.""",
-        "no_args": "🚫 Не указан текст для обработки!",
-        "start_text": "<b>🤖 ChatGPT:</b>\n",
-        "context_text": "❕ Создался новый диалог. Предыдущие запросы удалены.",
-    }
-
-    def __init__(self):
-        self.name = self.strings["name"]
+    strings = {"name": "FreeGPT"}
 
     async def client_ready(self, client, db):
-        self.client = client
         self.db = db
-        self.gpt_free = "@NeuroConnect_Bot"
 
-        # morisummermods feature
+    async def askcmd(self, message):
+        """Отправить запрос @NeuroConnect_Bot с использованием промпта."""
         try:
-            channel = await self.client.get_entity("t.me/vsecoder_m")
-            await client(JoinChannelRequest(channel))
-        except Exception:
-            logger.error("Can't join vsecoder_m")
+            args = message.text.split(" ", 1)
+            if len(args) != 2:
+                return await message.reply("<b>[FreeGPT]</b> Неправильный формат команды. Используйте: <code>/ask PROMPT</code>.")
 
-    async def message_q(
-        self,
-        text: str,
-        user_id: int,
-        mark_read: bool = False,
-        delete: bool = False,
-        ignore_answer: bool = False,
-    ):
-        """Отправляет сообщение и возращает ответ"""
-        async with self.client.conversation(user_id) as conv:
-            msg = await conv.send_message(text)
+            prompt = args[1]
+            chat_id = await self.get_chat_id()
+
+            await message.edit("<b>[FreeGPT]</b> Отправка запроса...")
+            
             while True:
-                await asyncio.sleep(1)
-                response = await conv.get_response()
-                if mark_read:
-                    await conv.mark_read()
+                await message.client.send_message(chat_id, prompt)
+                time.sleep(1)
 
-                if delete:
-                    await msg.delete()
-                    await response.delete()
+                async for msg in message.client.iter_messages(chat_id, limit=1):
+                    if msg.sender_id == (await message.client.get_me()).id:
+                        await message.edit(msg.message)
+                        return
 
-                if ignore_answer:
-                    return response
+        except Exception as e:
+            return await message.edit(f"<b>[FreeGPT]</b> Ошибка при отправке запроса: {str(e)}.")
 
-                if "✅ Запрос отправлен" in response.text:
-                    continue
+    async def get_chat_id(self):
+        async for dialog in message.client.iter_dialogs():
+            if dialog.entity.username == "NeuroConnect_Bot":
+                return dialog.id
+        raise ValueError("Бот @NeuroConnect_Bot не найден в списке диалогов.")
 
-                if "Ожидание ответа" in response.text:
-                    continue
-
-                return response
-
-    async def chatgptfreecmd(self, message: Message):
-        """
-        {text} - обработать текст через ChatGPT
-        """
-        args = utils.get_args_raw(message)
-
-        if not args:
-            return await utils.answer(message, self.strings["no_args"])
-
-        await utils.answer(message, self.strings["loading"])
-
-        response = await self.message_q(
-            args, self.gpt_free, mark_read=True, delete=True, ignore_answer=False
-        )
-
-        text = self.strings["start_text"] + response.text.replace(
-            "/context", "<code>.contextgpt</code>"
-        )
-
-        return await utils.answer(message, text)
-
-    async def contextgptcmd(self, message: Message):
-        """
-        - сбросить диалог и начать новый
-        """
-        await self.message_q(
-            "/context", self.gpt_free, mark_read=True, delete=True, ignore_answer=True
-        )
-        return await utils.answer(message, self.strings["context_text"])
