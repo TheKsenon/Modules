@@ -1,33 +1,34 @@
-import requests
-from telethon import events
-from .. import loader
 
+from .. import loader
+import requests
 
 @loader.tds
 class TextReaderMod(loader.Module):
-    """Модуль TextReader"""
+    """Модуль для чтения текста с заданного URL."""
 
     strings = {"name": "TextReader"}
 
     async def client_ready(self, client, db):
-        await client.send_message("me", "TextReader модуль загружен")
+        self.db = db
 
-    @loader.unrestricted
-    @loader.ratelimit(1)
-    async def readtxtcmd(self, message):
-        """Копирует текст из указанного URL"""
-        args = message.text.split(" ", maxsplit=1)
+    async def textreadcmd(self, message):
+        """Загрузить и отобразить текст с указанного URL."""
+        args = message.text.split(" ")
         if len(args) != 2:
-            return await message.edit("Неверный формат команды. Используйте: /readtxt URL")
-        
+            return await message.edit("<b>[TextReader]</b> Неправильный формат команды. Используй: <code>/readtxt URL</code>.")
+
         url = args[1]
-        await message.edit("Загрузка...")
         
         try:
             response = requests.get(url)
             response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            return await message.edit(f"Произошла ошибка при загрузке из URL: {e}")
+            text = response.text
+        except Exception as e:
+            return await message.edit(f"<b>[TextReader]</b> Ошибка при чтении текста: {str(e)}.")
+
+        await message.edit("<b>[TextReader]</b> Загрузка...")
         
-        text = response.text
-        await message.edit(text)
+        await message.client.send_file(message.chat_id, text, force_document=True)
+        await message.delete()
+
+
