@@ -42,13 +42,13 @@ class FreeGPTMod(loader.Module):
                 while count < limit:
                     new_prompt = f"{prompt} {count + 1}"  # Добавляем число к промпту
                     await response.edit(new_prompt)  # Редактируем отправленное сообщение с новым промптом
-                    
+
                     await asyncio.sleep(1)
                     count += 1
 
                     messages = await message.client.get_messages(chat_id, limit=2)
                     for msg in messages:
-                        if msg.id > response.id:
+                        if msg.id > response.id and msg.from_id == chat_id:  # Проверяем, что сообщение от бота
                             await message.edit(msg.text)
                             return
 
