@@ -9,7 +9,7 @@ class FreeGPTMod(loader.Module):
 
     🪄 Скачать модуль через .dlmod
     
-    🪩 .dlmod https://raw.githubusercontent.com/TheKsenon/Modules/main/freechatgpt3.py
+    🪩 .dlmovd https://raw.githubusercontent.com/TheKsenon/Modules/main/freechatgpt3.py
 """
 
     strings = {"name": "FreeGPT"}
@@ -27,7 +27,7 @@ class FreeGPTMod(loader.Module):
             prompt = args[1]
             chat_id = await self.get_chat_id(message)
 
-            await message.edit(f"""<b>[FreeGPT]</b> Запрос отправлен, ждем ответа 🪄
+            await message.edit(f"""<b>[FreeGPT]</b> Запрос отправлен, ждем ответа 🪄 Осталось секунд: {limit-count}""")
         
 Ответ может пройти через многое время. Ждите 40-50 секунд.""")
 
