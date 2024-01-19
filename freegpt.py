@@ -15,7 +15,7 @@ class FreeGPTMod(loader.Module):
         self.db = db
 
     async def askcmd(self, message):
-        """Отправить запрос @NeuroConnect_Bot с использованием промпта."""
+        """Отправить запрос ChatGPT с использованием промпта."""
         try:
             args = message.text.split(" ", 1)
             if len(args) != 2:
