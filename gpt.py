@@ -1,10 +1,11 @@
+#Модуль и код был сделан @XenonModules
+
 from .. import loader
 import asyncio
 
 @loader.tds
 class FreeGPTMod(loader.Module):
-    """Модуль для отправки запроса к @NeuroConnect_Bot с использованием промпта."""
-
+    """Модуль для отправки запроса к ChatGPT с использованием промпта API-ключ не нужен. Разработчик: @XenonModules"""
     strings = {"name": "FreeGPT"}
 
     async def client_ready(self, client, db):
@@ -24,7 +25,7 @@ class FreeGPTMod(loader.Module):
             
             async with message.client.conversation(chat_id) as conv:
                 response = await conv.send_message(prompt)
-                await asyncio.sleep(15)
+                await asyncio.sleep(9)
 
                 limit = 40  # Лимит проверок
                 count = 0
