@@ -7,7 +7,9 @@ import asyncio
 @loader.tds
 class FreeGPTMod(loader.Module):
     """Модуль для отправки запроса к ChatGPT с использованием промпта. 
-    Разработчик: @XenonModules"""
+    Разработчик: @XenonModules
+    
+    <b>🪄 Скачать модуль:<code> .dlmod https://raw.githubusercontent.com/TheKsenon/Modules/main/freegpt.py</b></code>"""
 
     strings = {"name": "FreeGPT"}
 
