@@ -5,7 +5,7 @@ import asyncio
 class FreeGPTMod(loader.Module):
     """Модуль для отправки запроса к ChatGPT с использованием промпта.
     
-    🪅 Разработчик: @XenonModules
+    🪅 Разработчик модуля: @XenonModules
 
     🪄 Скачать модуль через .dlmod
     
