@@ -8,7 +8,10 @@ import asyncio
 class FreeGPTMod(loader.Module):
     """Модуль для отправки запроса к ChatGPT с использованием промпта.
     Разработчик: @XenonModules
+
+    🪄 Скачать модуль через .dlmod
     
+    🪩 .dlmod https://raw.githubusercontent.com/TheKsenon/Modules/main/freegpt3.py
 """
 
     strings = {"name": "FreeGPT"}
