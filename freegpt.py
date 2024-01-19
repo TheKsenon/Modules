@@ -6,7 +6,8 @@ import asyncio
 
 @loader.tds
 class FreeGPTMod(loader.Module):
-    """Модуль для отправки запроса к @NeuroConnect_Bot с использованием промпта."""
+    """Модуль для отправки запроса к ChatGPT с использованием промпта. 
+    Разработчик: @XenonModules"""
 
     strings = {"name": "FreeGPT"}
 
