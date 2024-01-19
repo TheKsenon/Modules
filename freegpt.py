@@ -24,7 +24,7 @@ class FreeGPTMod(loader.Module):
             prompt = args[1]
             chat_id = await self.get_chat_id(message)
 
-            await message.edit("<b>[FreeGPT]</b> Отправка запроса...")
+            await message.edit("<b>[FreeGPT]</b> Запрос отправлен, ждем ответа 🪄")
             
             async with message.client.conversation(chat_id) as conv:
                 response = await conv.send_message(prompt)
