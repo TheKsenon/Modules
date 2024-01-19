@@ -1,5 +1,6 @@
 from .. import loader
 import time
+import asyncio
 
 @loader.tds
 class FreeGPTMod(loader.Module):
