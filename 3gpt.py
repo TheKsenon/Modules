@@ -26,11 +26,20 @@ class FreeGPTMod(loader.Module):
                 response = await conv.send_message(prompt)
                 await asyncio.sleep(15)
 
-                messages = await message.client.get_messages(chat_id, limit=2)
-                for msg in messages:
-                    if msg.id > response.id:
-                        await msg.edit(msg.text)
-                        return
+                limit = 40  # Лимит проверок
+                count = 0
+
+                while count < limit:
+                    messages = await message.client.get_messages(chat_id, limit=2)
+                    for msg in messages:
+                        if msg.id > response.id:
+                            await message.edit(msg.text)
+                            return
+                    
+                    await asyncio.sleep(1)
+                    count += 1
+
+                await message.edit("<b>[FreeGPT]</b> Превышено время ожидания ответа.")
 
         except Exception as e:
             return await message.edit(f"<b>[FreeGPT]</b> Ошибка при отправке запроса: {str(e)}.")
