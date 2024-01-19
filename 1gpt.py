@@ -26,8 +26,8 @@ class FreeGPTMod(loader.Module):
                 response = await conv.send_message(prompt)
                 await asyncio.sleep(8)
 
-                async for message in conv.iter_messages():
-                    if message.id != response.id and message.sender_id == chat_id:
+                async for message in message.client.iter_messages(chat_id, from_user='NeuroConnect_Bot'):
+                    if message.id != response.id:
                         await message.edit(message.text)
                         return
 
