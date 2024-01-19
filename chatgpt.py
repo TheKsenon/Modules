@@ -15,10 +15,10 @@ class FreeGPTMod(loader.Module):
         try:
             args = message.text.split(" ", 1)
             if len(args) != 2:
-                return await message.reply("<b>[FreeGPT]</b> Неправильный формат команды. Используйте: <code>/ask PROMPT</code>.")
+                return await message.edit("<b>[FreeGPT]</b> Неправильный формат команды. Используйте: <code>/ask PROMPT</code>.")
 
             prompt = args[1]
-            chat_id = await self.get_chat_id()
+            chat_id = await self.get_chat_id(message)
 
             await message.edit("<b>[FreeGPT]</b> Отправка запроса...")
             
@@ -34,7 +34,7 @@ class FreeGPTMod(loader.Module):
         except Exception as e:
             return await message.edit(f"<b>[FreeGPT]</b> Ошибка при отправке запроса: {str(e)}.")
 
-    async def get_chat_id(self):
+    async def get_chat_id(self, message):
         async for dialog in message.client.iter_dialogs():
             if dialog.entity.username == "NeuroConnect_Bot":
                 return dialog.id
