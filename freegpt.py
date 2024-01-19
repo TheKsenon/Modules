@@ -19,7 +19,7 @@ class FreeGPTMod(loader.Module):
         try:
             args = message.text.split(" ", 1)
             if len(args) != 2:
-                return await message.edit("<b>[FreeGPT]</b> Неправильный формат команды. Используйте: <code>/ask PROMPT</code>.")
+                return await message.edit("<b>[FreeGPT]</b> Неправильный формат команды. Используйте: <code>.ask PROMPT</code>.")
 
             prompt = args[1]
             chat_id = await self.get_chat_id(message)
