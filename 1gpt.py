@@ -23,11 +23,13 @@ class FreeGPTMod(loader.Module):
             await message.edit("<b>[FreeGPT]</b> Отправка запроса...")
             
             async with message.client.conversation(chat_id) as conv:
-                await message.client.send_message(chat_id, prompt)
+                response = await conv.send_message(prompt)
                 await asyncio.sleep(8)
 
-                response = await conv.get_response()
-                await message.edit(response.text)
+                async for message in conv.iter_messages():
+                    if message.id != response.id:
+                        await message.edit(message.text)
+                        return
 
         except Exception as e:
             return await message.edit(f"<b>[FreeGPT]</b> Ошибка при отправке запроса: {str(e)}.")
