@@ -30,11 +30,13 @@ class FreeGPTMod(loader.Module):
             prompt = args[1]
             chat_id = await self.get_chat_id(message)
 
-            await message.edit("<b>[FreeGPT]</b> Запрос отправлен, ждем ответа 🪄")
+            await message.edit("""<b>[FreeGPT]</b> Запрос отправлен, ждем ответа 🪄
+            
+            Ответ может пройти через многое время. Ждите 40-50 секунд.""")
             
             async with message.client.conversation(chat_id) as conv:
                 response = await conv.send_message(prompt)
-                await asyncio.sleep(15)
+                await asyncio.sleep(40)
 
                 limit = 40  # Лимит проверок
                 count = 0
