@@ -1,6 +1,3 @@
-#Module has created by @officialKsenon/@XenonModules
-#You can modify, or edit this code. 
-
 from .. import loader
 import asyncio
 
@@ -30,10 +27,9 @@ class FreeGPTMod(loader.Module):
             prompt = args[1]
             chat_id = await self.get_chat_id(message)
 
-            seconds = 0  # Изначальное число секунд
             await message.edit(f"""<b>[FreeGPT]</b> Запрос отправлен, ждем ответа 🪄
         
-Ответ может пройти через многое время. Ждите 40-50 секунд. Осталось секунд: {seconds}""")
+Ответ может пройти через многое время. Ждите 40-50 секунд.""")
 
             async with message.client.conversation(chat_id) as conv:
                 response = await conv.send_message(prompt)
@@ -48,7 +44,6 @@ class FreeGPTMod(loader.Module):
 
                     await asyncio.sleep(1)
                     count += 1
-                    seconds += 1  # Увеличиваем число секунд
 
                     messages = await message.client.get_messages(chat_id, limit=2)
                     for msg in messages:
@@ -57,7 +52,7 @@ class FreeGPTMod(loader.Module):
                             return
 
                     await message.edit(f"""<b>[FreeGPT]</b> Запрос отправлен, ждем ответа 🪄
-Ответ может пройти через многое время. Ждите 40-50 секунд. Осталось секунд: {seconds}""")
+Ответ может пройти через многое время. Ждите {count} секунд. Осталось секунд: {limit-count}""")
 
                 await message.edit("<b>[FreeGPT]</b> Превышено время ожидания ответа.")
 
