@@ -34,7 +34,7 @@ class FreeGPTMod(loader.Module):
             
             async with message.client.conversation(chat_id) as conv:
                 response = await conv.send_message(prompt)
-                await asyncio.sleep(15)
+                await asyncio.sleep(50)
 
                 limit = 40  # Лимит проверок
                 count = 0
