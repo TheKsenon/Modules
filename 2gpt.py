@@ -24,11 +24,11 @@ class FreeGPTMod(loader.Module):
             
             async with message.client.conversation(chat_id) as conv:
                 response = await conv.send_message(prompt)
-                await asyncio.sleep(4)
+                await asyncio.sleep(15)
 
                 messages = await message.client.get_messages(chat_id, limit=2)
                 for msg in messages:
-                    if msg.id != response.id:
+                    if msg.id > response.id:
                         await msg.edit(msg.text)
                         return
 
