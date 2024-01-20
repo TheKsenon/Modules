@@ -67,7 +67,7 @@ class FreeGPTMod(loader.Module):
                     if len(messages) > 0:
                         msg = messages[0]
                         if msg.id > response.id and msg.text:
-                            await message.client.edit_message(chat_id, msg.id, msg.text)
+                            await message.edit(msg.text)
                     await asyncio.sleep(1)
 
         except Exception as e:
