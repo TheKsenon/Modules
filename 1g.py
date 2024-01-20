@@ -36,7 +36,7 @@ class FreeGPTMod(loader.Module):
                 while seconds < 40:
                     await asyncio.sleep(1)
                     seconds += 1
-                    await message.respond(f"<b>[FreeGPT]</b> Запрос отправлен, ждем ответа 🪄\nОсталось секунд: {seconds}", delete=True)
+                    await message.respond(f"<b>[FreeGPT]</b> Запрос отправлен, ждем ответа 🪄\nОсталось секунд: {seconds}")
     
                 messages = await message.client.get_messages(chat_id, limit=2)
                 for msg in messages:
