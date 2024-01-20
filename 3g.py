@@ -78,23 +78,3 @@ class FreeGPTMod(loader.Module):
             if dialog.entity.username == "NeuroConnect_Bot":
                 return dialog.id
         raise ValueError("Бот @NeuroConnect_Bot не найден в списке диалогов.")
-                    await asyncio.sleep(1)
-                    seconds += 1
-                    await message.edit(f"<b>[FreeGPT]</b> Запрос отправлен, ждем ответа 🪄\nОсталось секунд: {seconds}")
-    
-                messages = await message.client.get_messages(chat_id, limit=2)
-                for msg in messages:
-                    if msg.id > response.id:
-                        await message.edit(msg.text)
-                        return
-    
-                await message.edit("<b>[FreeGPT]</b> Превышено время ожидания ответа.")
-    
-        except Exception as e:
-            return await message.edit(f"<b>[FreeGPT]</b> Ошибка при отправке запроса: {str(e)}.")
-
-    async def get_chat_id(self, message):
-        async for dialog in message.client.iter_dialogs():
-            if dialog.entity.username == "NeuroConnect_Bot":
-                return dialog.id
-        raise ValueError("Бот @NeuroConnect_Bot не найден в списке диалогов.")
