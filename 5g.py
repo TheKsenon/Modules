@@ -40,7 +40,7 @@ class FreeGPTMod(loader.Module):
 
                 messages = await message.client.get_messages(chat_id, limit=2)
                 for msg in messages:
-                    if msg.id > response.id:
+                    if msg.id > response.id and msg.text:
                         await message.edit(msg.text)
                         return
 
@@ -66,7 +66,7 @@ class FreeGPTMod(loader.Module):
                     messages = await message.client.get_messages(chat_id, limit=1)
                     if len(messages) > 0:
                         msg = messages[0]
-                        if msg.id > response.id:
+                        if msg.id > response.id and msg.text:
                             await message.client.edit_message(chat_id, msg.id, msg.text)
                     await asyncio.sleep(1)
 
