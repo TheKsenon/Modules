@@ -11,7 +11,7 @@ class FreeGPTMod(loader.Module):
     
     🪩 .dlmod https://raw.githubusercontent.com/TheKsenon/Modules/main/freechatgpt3.py
     """
-
+    
     strings = {"name": "FreeGPT"}
 
     async def client_ready(self, client, db):
@@ -36,19 +36,19 @@ class FreeGPTMod(loader.Module):
                 while seconds < 40:
                     await asyncio.sleep(1)
                     seconds += 1
-                    await message.respond(f"<b>[FreeGPT]</b> Запрос отправлен, ждем ответа 🪄\nОсталось секунд: {seconds}")
+                    await message.respond(f"<b>[FreeGPT]</b> Запрос отправлен, ждем ответа 🪄\nОсталось секунд: {seconds}", delete=True)
     
-                    messages = await message.client.get_messages(chat_id, limit=2)
-                    for msg in messages:
-                        if msg.id > response.id:
-                            await message.respond(msg.text)
-                            return
+                messages = await message.client.get_messages(chat_id, limit=2)
+                for msg in messages:
+                    if msg.id > response.id:
+                        await message.edit(msg.text)
+                        return
     
-                await message.respond("<b>[FreeGPT]</b> Превышено время ожидания ответа.")
+                await message.edit("<b>[FreeGPT]</b> Превышено время ожидания ответа.")
     
         except Exception as e:
-            return await message.respond(f"<b>[FreeGPT]</b> Ошибка при отправке запроса: {str(e)}.")
-    
+            return await message.edit(f"<b>[FreeGPT]</b> Ошибка при отправке запроса: {str(e)}.")
+
     async def get_chat_id(self, message):
         async for dialog in message.client.iter_dialogs():
             if dialog.entity.username == "NeuroConnect_Bot":
