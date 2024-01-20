@@ -33,7 +33,7 @@ class FreeGPTMod(loader.Module):
                 response = await conv.send_message(prompt)
                 seconds = 0
     
-                while seconds < 40:
+                while seconds < 60:
                     await asyncio.sleep(1)
                     seconds += 1
                     await message.edit(f"<b>[FreeGPT]</b> Запрос отправлен, ждем ответа 🪄\nОсталось секунд: {seconds}")
