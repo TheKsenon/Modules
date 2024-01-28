@@ -1,13 +1,16 @@
 import httpx
 from aiogram import Bot, Dispatcher, types, exceptions
 from aiogram import executor
+from io import BytesIO
+import time
 
-bot = Bot(token="6402469481:AAEV5DwRavNsbAuqL_IDMi-yuNtSgfysVFg")
+bot = Bot(token="YOUR_BOT_TOKEN")
 dp = Dispatcher(bot)
 users = set()
 gpt_count = 0
 sdxl_count = 0
 start_count = 0
+last_send_message_time = {}  # Добавлен словарь для отслеживания времени последней отправки сообщения
 
 @dp.message_handler(commands=["start"])
 async def start_cmd(message: types.Message):
@@ -54,7 +57,8 @@ async def sdxl_cmd(message: types.Message):
     async with httpx.AsyncClient(timeout=120.0) as client:
         resp = await client.post("https://opo.k.vu/private/apis/sdxl", json={"prompt": args})
         data = resp.text
-        await message.reply(file=data, caption=f"Ваше изображение готово, вот оно: {args}")
+        image_bytes_io = BytesIO(data.encode())
+        await message.reply_photo(types.InputFile(image_bytes_io), caption=f"Ваше изображение готово, вот оно: {args}")
 
 @dp.message_handler(commands=["readusers"])
 async def readusers_cmd(message: types.Message):
@@ -67,18 +71,27 @@ async def readusers_cmd(message: types.Message):
 @dp.message_handler(commands=["sendmessage"])
 async def sendmessage_cmd(message: types.Message):
     args = message.get_args()
-    with open("users.txt", "r") as file:
-        user_list = file.read().split(";")
-    for user_id_str in user_list:
-        if user_id_str:
-            try:
-                user_id = int(user_id_str)
-                await bot.send_message(user_id, args)
-            except exceptions.ChatNotFound:
-                print(f"Chat not found for user: {user_id}")
-            except ValueError:
-                print(f"Invalid user_id format: {user_id_str}")
-    await message.reply(f"""[📬] Сообщение отправлено всем пользователям: {args}""")
+    current_time = time.time()
+
+    if current_time - last_send_message_time.get(message.from_user.id, 0) >= 5:
+        with open("users.txt", "r") as file:
+            user_list = file.read().split(";")
+
+        for user_id_str in user_list:
+            if user_id_str:
+                try:
+                    user_id = int(user_id_str)
+                    await bot.send_message(user_id, args)
+                except exceptions.ChatNotFound:
+                    print(f"Chat not found for user: {user_id}")
+                except ValueError:
+                    print(f"Invalid user_id format: {user_id_str}")
+
+        last_send_message_time[message.from_user.id] = current_time  # Обновляем время последней отправки
+
+        await message.reply(f"""[📬] Сообщение отправлено всем пользователям: {args}""")
+    else:
+        await message.reply("""[⚠️] Пожалуйста, подождите 5 секунд перед отправкой нового сообщения.""")
 
 @dp.message_handler(commands=["nano"])
 async def nano_cmd(message: types.Message):
