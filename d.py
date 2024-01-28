@@ -1,4 +1,4 @@
-;import httpx
+import httpx
 from aiogram import Bot, Dispatcher, types, exceptions
 from aiogram import executor
 
