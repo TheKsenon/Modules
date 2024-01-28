@@ -206,4 +206,4 @@ async def adminlist_cmd(message: types.Message):
 {admin_list}""")
 
 if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True
+    executor.start_polling(dp, skip_updates=True)
