@@ -5,14 +5,18 @@ from aiogram import executor
 bot = Bot(token="6402469481:AAEV5DwRavNsbAuqL_IDMi-yuNtSgfysVFg")
 dp = Dispatcher(bot)
 users = set()
+gpt_count = 0
+sdxl_count = 0
+start_count = 0
 
 @dp.message_handler(commands=["start"])
 async def start_cmd(message: types.Message):
-    global users
+    global users, start_count
     if message.from_user.id not in users:
         with open("users.txt", "a") as file:
             file.write(f"{message.from_user.id};")
         users.add(message.from_user.id)
+    start_count += 1
     await message.reply("""[🔥] Вы используете самый быстрый GPT Бот. 
 
 [🪄] Команды:
@@ -21,14 +25,19 @@ async def start_cmd(message: types.Message):
 /sendmessage MESSAGE - Отправить сообщение всем пользователям бота.
 /readusers - Посмотреть пользователей бота.
 /nano FILE.FORMAT TEXT - Редактировать текст в файле.
+/infousers - Получить статистику использования бота.
+/addfile FILE.NAME - Создать новый файл.
 
 [🔊] Разработчик бота: @officialksenon""")
 
 @dp.message_handler(commands=["gpt"])
 async def gpt_cmd(message: types.Message):
+    global gpt_count
     args = message.get_args()
+    gpt_count += 1
     await message.reply("""[🪄] Ваш ответ уже готов 🔥
 Мы используем самую быструю модель для вашего использования.""")
+
     async with httpx.AsyncClient(timeout=30.0) as client:
         resp = await client.post("https://opo.k.vu/private/apis/gpt", json={"prompt": args})
         data = resp.text
@@ -36,9 +45,12 @@ async def gpt_cmd(message: types.Message):
 
 @dp.message_handler(commands=["sdxl"])
 async def sdxl_cmd(message: types.Message):
+    global sdxl_count
     args = message.get_args()
+    sdxl_count += 1
     await message.reply("""[🪄] Ваше изображение уже готово 🔥
 Мы используем самую быструю модель для вашего использования.""")
+
     async with httpx.AsyncClient(timeout=120.0) as client:
         resp = await client.post("https://opo.k.vu/private/apis/sdxl", json={"prompt": args})
         data = resp.text
@@ -78,7 +90,27 @@ async def nano_cmd(message: types.Message):
             file.write(new_text)
         await message.reply(f"""[🖊️] Текст в файле {file_path} успешно изменен на: {new_text}""")
     else:
-        await message.reply("""[❌] Неправильный формат команды /nano. Пример: /nano users.txt hi!""")
+        await message.reply("""[❌] Неправильный формат команды /nano. Пример: /nano users txt hi!""")
+
+@dp.message_handler(commands=["infousers"])
+async def infousers_cmd(message: types.Message):
+    global users, gpt_count, sdxl_count, start_count
+    users_count = len(users)
+    await message.reply(f"""[ℹ️] Используют ИИ: {users_count}
+Написано /gpt: {gpt_count}
+Написано /sdxl: {sdxl_count}
+Написано /start: {start_count}""")
+
+@dp.message_handler(commands=["addfile"])
+async def addfile_cmd(message: types.Message):
+    args = message.get_args().split(" ", 1)
+    if len(args) == 1:
+        file_name = args[0]
+        with open(file_name, "w"):
+            pass
+        await message.reply(f"""[📄] Файл {file_name} успешно создан.""")
+    else:
+        await message.reply("""[❌] Неправильный формат команды /addfile. Пример: /addfile example.txt""")
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
