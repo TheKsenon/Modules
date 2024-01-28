@@ -4,7 +4,7 @@ from aiogram import executor
 from io import BytesIO
 import time
 
-bot = Bot(token="YOUR_BOT_TOKEN")
+bot = Bot(token="6402469481:AAEV5DwRavNsbAuqL_IDMi-yuNtSgfysVFg")
 dp = Dispatcher(bot)
 users = set()
 gpt_count = 0
