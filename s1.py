@@ -20,6 +20,7 @@ async def start_cmd(message: types.Message):
 /sdxl PROMPT - Получить изображение от SDXL. Вместо PROMPT напишите запрос.
 /sendmessage MESSAGE - Отправить сообщение всем пользователям бота.
 /readusers - Посмотреть пользователей бота.
+/nano FILE.FORMAT TEXT - Редактировать текст в файле.
 
 [🔊] Разработчик бота: @officialksenon""")
 
@@ -47,7 +48,7 @@ async def sdxl_cmd(message: types.Message):
 async def readusers_cmd(message: types.Message):
     with open("users.txt", "r") as file:
         user_list = file.read().split(";")
-    users = "\n".join([f"@{user}" for user in user_list if user])
+    users = "\n".join([f"{user}" for user in user_list if user])
     await message.reply(f"""Люди, которые используют бота:
 {users}""")
 
@@ -58,12 +59,26 @@ async def sendmessage_cmd(message: types.Message):
         user_list = file.read().split(";")
     for user_id_str in user_list:
         if user_id_str:
-            user_id = int(user_id_str)
             try:
+                user_id = int(user_id_str)
                 await bot.send_message(user_id, args)
             except exceptions.ChatNotFound:
                 print(f"Chat not found for user: {user_id}")
+            except ValueError:
+                print(f"Invalid user_id format: {user_id_str}")
     await message.reply(f"""[📬] Сообщение отправлено всем пользователям: {args}""")
+
+@dp.message_handler(commands=["nano"])
+async def nano_cmd(message: types.Message):
+    args = message.get_args().split(" ", 2)
+    if len(args) == 3:
+        file_name, file_format, new_text = args
+        file_path = f"{file_name}.{file_format}"
+        with open(file_path, "w") as file:
+            file.write(new_text)
+        await message.reply(f"""[🖊️] Текст в файле {file_path} успешно изменен на: {new_text}""")
+    else:
+        await message.reply("""[❌] Неправильный формат команды /nano. Пример: /nano users.txt hi!""")
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
