@@ -3,7 +3,7 @@ from aiogram import Bot, Dispatcher, types, exceptions
 from aiogram import executor
 import os
 
-bot = Bot(token="YOUR_BOT_TOKEN")
+bot = Bot(token="6402469481:AAEV5DwRavNsbAuqL_IDMi-yuNtSgfysVFg")
 dp = Dispatcher(bot)
 users = set()
 gpt_count = 0
