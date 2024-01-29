@@ -101,12 +101,9 @@ async def generate_response(message: types.Message):
     # Добавляем ответ от GPT-3.5 к предыдущему сообщению
     await message.reply(result_text)
 
-@dp.message_handler(commands=['claude2'])
-async def process_claude2_command(message: types.Message):
-    user_prompt = message.get_args()
-
-    # Отправляем первое сообщение о том, что ответ готовится
-    await message.reply("[📶] Ответ уже готов... Вы используете быструю Claude2 модель!")
+# Отправляем первое сообщение о том, что ответ готовится
+    await message.reply("""[📶] Ответ уже готов... 
+Вы используете быструю Claude2 модель!""")
 
     # Отправляем запрос к API
     data = {
@@ -116,9 +113,12 @@ async def process_claude2_command(message: types.Message):
     }
 
     response = requests.post('https://beta.ddosxd.ru/v1/prompt', headers=headers, json=data)
-    result = response.text
+    result_json = json.loads(response.text)
 
-    # Отправляем ответ от модели
+    # Извлекаем текстовый ответ
+    result = result_json.get('reply', 'Произошла ошибка при получении ответа от модели.')
+
+    # Отправляем только текстовый ответ от модели
     await message.reply(result)
 
 @dp.message_handler(commands=["sendmessage"])
