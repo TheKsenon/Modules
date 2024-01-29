@@ -35,7 +35,7 @@ async def start_cmd(message: types.Message):
             file.write(f"{message.from_user.id};")
         users.add(message.from_user.id)
     start_count += 1
-    await message.reply("""[🔥] Вы используете GPT Бот. 
+    await message.reply("""[🔥] Вы используете лучшего их лучших бота!
 
 [🪄] Команды:
 /gpt PROMPT - Получить ответ от GPT. Вместо PROMPT напишите запрос.
@@ -82,7 +82,7 @@ async def generate_response(message: types.Message):
     prompt = message.get_args()
 
     # Отправляем сначала сообщение "Ваш ответ уже готов 🔥"
-    await message.reply("Ваш ответ уже готов 🔥")
+    await message.reply("""[📶] Ответ уже готов... Вы используете быструю GPT 3.5 модель!""")
 
     # Запрашиваем ответ от GPT-3.5
     data = {'model': 'gpt-3.5-turbo', 'messages': [{'role': 'user', 'content': prompt}]}
