@@ -33,4 +33,4 @@ async def zephyr_command(message: types.Message):
         await message.reply('Пожалуйста, введите текст для отправки модели Zephyr.')
 
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True
+    executor.start_polling(dp, skip_updates=True)
