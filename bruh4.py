@@ -2,6 +2,11 @@ import httpx
 from aiogram import Bot, Dispatcher, types, exceptions
 from aiogram import executor
 import os
+import logging
+from aiogram import Bot, Dispatcher, types
+from aiogram.contrib.middlewares.logging import LoggingMiddleware
+from aiogram.utils import executor
+import requests
 
 bot = Bot(token="6402469481:AAEV5DwRavNsbAuqL_IDMi-yuNtSgfysVFg")
 dp = Dispatcher(bot)
@@ -10,6 +15,17 @@ admins = set()
 gpt_count = 0
 sdxl_count = 0
 start_count = 0
+
+API_KEY = 'ddosxd-api-1jq4e9xbzu2ilgn'
+headers = {'Authorization': API_KEY}
+
+API_URL = 'https://api.ddosxd.ru/v1/chat'
+
+logging.basicConfig(level=logging.INFO)
+
+dp = Dispatcher(bot)
+dp.middleware.setup(LoggingMiddleware())
+
 
 @dp.message_handler(commands=["start"])
 async def start_cmd(message: types.Message):
@@ -24,6 +40,7 @@ async def start_cmd(message: types.Message):
 [🪄] Команды:
 /gpt PROMPT - Получить ответ от GPT. Вместо PROMPT напишите запрос.
 /sdxl PROMPT - Получить изображение от SDXL. Вместо PROMPT напишите запрос.
+/gpt35 PROMPT — Быстрая, сильная модель
 [🔊] Разработчик бота: @officialksenon / thx to opo && ddosxd""")
 
 @dp.message_handler(commands=["gpt"])
@@ -59,6 +76,28 @@ async def readusers_cmd(message: types.Message):
     users = "\n".join([f"{user}" for user in user_list if user])
     await message.reply(f"""Люди, которые используют бота:
 {users}""")
+
+@dp.message_handler(commands=['gpt35'])
+async def generate_response(message: types.Message):
+    prompt = message.get_args()
+
+    # Отправляем сначала сообщение "Ваш ответ уже готов 🔥"
+    await message.reply("Ваш ответ уже готов 🔥")
+
+    # Запрашиваем ответ от GPT-3.5
+    data = {'model': 'gpt-3.5-turbo', 'messages': [{'role': 'user', 'content': prompt}]}
+    response = requests.post(API_URL, headers=headers, json=data)
+
+    try:
+        response_json = response.json()
+        generated_text = response_json['reply']
+        result_text = f"{generated_text}"
+    except KeyError:
+        result_text = "Не удалось получить ответ от модели."
+
+    # Добавляем ответ от GPT-3.5 к предыдущему сообщению
+    await message.reply(result_text)
+
 
 @dp.message_handler(commands=["sendmessage"])
 async def sendmessage_cmd(message: types.Message):
