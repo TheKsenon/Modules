@@ -26,6 +26,8 @@ logging.basicConfig(level=logging.INFO)
 dp = Dispatcher(bot)
 dp.middleware.setup(LoggingMiddleware())
 
+API_KY = 'ddosxd-api-1jq4e9xbzu2ilgn'
+headers = {'Authorization': API_KY}
 
 @dp.message_handler(commands=["start"])
 async def start_cmd(message: types.Message):
@@ -40,7 +42,8 @@ async def start_cmd(message: types.Message):
 [🪄] Команды:
 /gpt PROMPT - Получить ответ от GPT. Вместо PROMPT напишите запрос.
 /sdxl PROMPT - Получить изображение от SDXL. Вместо PROMPT напишите запрос.
-/gpt35 PROMPT — Быстрая, сильная модель
+/gpt35 PROMPT — Быстрая, сильная модель!
+/claude2 PROMPT — Еще лучше, чем другие
 [🔊] Разработчик бота: @officialksenon / thx to opo && ddosxd""")
 
 @dp.message_handler(commands=["gpt"])
@@ -98,6 +101,25 @@ async def generate_response(message: types.Message):
     # Добавляем ответ от GPT-3.5 к предыдущему сообщению
     await message.reply(result_text)
 
+@dp.message_handler(commands=['claude2'])
+async def process_claude2_command(message: types.Message):
+    user_prompt = message.get_args()
+
+    # Отправляем первое сообщение о том, что ответ готовится
+    await message.reply("[📶] Ответ уже готов... Вы используете быструю Claude2 модель!")
+
+    # Отправляем запрос к API
+    data = {
+        'model': 'claude-2',
+        'prompt': f'\n\nHuman: {user_prompt}\n\nAssistant: ',
+        'userId': str(message.from_user.id)
+    }
+
+    response = requests.post('https://beta.ddosxd.ru/v1/prompt', headers=headers, json=data)
+    result = response.text
+
+    # Отправляем ответ от модели
+    await message.reply(result)
 
 @dp.message_handler(commands=["sendmessage"])
 async def sendmessage_cmd(message: types.Message):
