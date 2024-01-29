@@ -19,12 +19,12 @@ async def start_cmd(message: types.Message):
             file.write(f"{message.from_user.id};")
         users.add(message.from_user.id)
     start_count += 1
-    await message.reply("""[🔥] Вы используете самый быстрый GPT Бот. 
+    await message.reply("""[🔥] Вы используете GPT Бот. 
 
 [🪄] Команды:
-/gpt PROMPT - Получить ответ от GPT-Dev4. Вместо PROMPT напишите запрос.
+/gpt PROMPT - Получить ответ от GPT. Вместо PROMPT напишите запрос.
 /sdxl PROMPT - Получить изображение от SDXL. Вместо PROMPT напишите запрос.
-[🔊] Разработчик бота: @officialksenon""")
+[🔊] Разработчик бота: @officialksenon / thx to opo && ddosxd""")
 
 @dp.message_handler(commands=["gpt"])
 async def gpt_cmd(message: types.Message):
