@@ -6,6 +6,7 @@ import os
 bot = Bot(token="6402469481:AAEV5DwRavNsbAuqL_IDMi-yuNtSgfysVFg")
 dp = Dispatcher(bot)
 users = set()
+admins = set()
 gpt_count = 0
 sdxl_count = 0
 start_count = 0
@@ -107,7 +108,6 @@ async def addfile_cmd(message: types.Message):
     else:
         await message.reply("""[❌] Неправильный формат команды /addfile. Пример: /addfile example.txt""")
 
-@admin_check
 async def admin_check(message: types.Message):
     return message.from_user.id in admins
 
@@ -175,18 +175,6 @@ async def deleteadmin_cmd(message: types.Message):
 
 @dp.message_handler(commands=["deletefile"])
 async def deletefile_cmd(message: types.Message):
-    if not admin_check(message):
-        return
-
-    file_name = message.get_args()
-    try:
-        os.remove(file_name)
-        await message.reply(f"[🗑️] Файл {file_name} успешно удален.")
-    except FileNotFoundError:
-        await message.reply(f"[❌] Файл {file_name} не найден.")
-
-@dp.message_handler(commands=["deletefile"])
-async def deletefile_cmd(message: types.Message):
     args = message.get_args().split(" ", 1)
     if len(args) == 1:
         file_name = args[0]
@@ -197,7 +185,7 @@ async def deletefile_cmd(message: types.Message):
             await message.reply(f"""[❌] Файл {file_name} не найден.""")
     else:
         await message.reply("""[❌] Неправильный формат команды /deletefile. Пример: /deletefile example.txt""")
-        
+
 @dp.message_handler(commands=["adminlist"])
 async def adminlist_cmd(message: types.Message):
     admins = await bot.get_chat_administrators(message.chat.id)
