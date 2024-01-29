@@ -23,11 +23,12 @@ async def generate_response(message: types.Message):
     data = {'model': 'gpt-3.5-turbo', 'messages': [{'role': 'user', 'content': prompt}]}
     response = requests.post(API_URL, headers=headers, json=data)
     
-    if response.status_code == 200:
-        generated_text = response.json()['choices'][0]['message']['content']
+    try:
+        response_json = response.json()
+        generated_text = response_json['reply']
         result_text = f"[🪄] Ваш ответ уже готов 🔥\n{generated_text}"
-    else:
-        result_text = "Произошла ошибка при получении ответа."
+    except KeyError:
+        result_text = "Не удалось получить ответ от модели."
 
     await message.reply(result_text)
 
