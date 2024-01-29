@@ -98,6 +98,9 @@ async def generate_response(message: types.Message):
     except KeyError:
         result_text = "Не удалось получить ответ от модели."
 
+@dp.message_handler(commands=['claude2'])
+async def process_claude2_command(message: types.Message):
+    user_prompt = message.get_args()
     # Добавляем ответ от GPT-3.5 к предыдущему сообщению
     await message.reply(result_text)
 
