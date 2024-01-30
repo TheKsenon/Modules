@@ -89,14 +89,15 @@ async def readusers_cmd(message: types.Message):
 {users}""")
 
 @dp.message_handler(commands=['gpt35'])
+async@dp.message_handler(commands=['gpt35'])
 async def generate_response(message: types.Message):
-    prompt = message.get_args()
+    user_prompt = message.get_args()
 
-    # Отправляем сначала сообщение "Ваш ответ уже готов 🔥"
+    # Отправляем первое сообщение о том, что ответ готовится
     await message.reply("""[📶] Ответ уже готов... Вы используете быструю GPT 3.5 модель!""")
 
     # Запрашиваем ответ от GPT-3.5
-    data = {'model': 'gpt-3.5-turbo', 'messages': [{'role': 'user', 'content': prompt}]}
+    data = {'model': 'gpt-3.5-turbo', 'messages': [{'role': 'user', 'content': user_prompt}]}
     response = requests.post(API_URL, headers=headers, json=data)
 
     try:
@@ -106,15 +107,15 @@ async def generate_response(message: types.Message):
     except KeyError:
         result_text = "Не удалось получить ответ от модели."
 
-@dp.message_handler(commands=['claude2'])
-async def process_claude2_command(message: types.Message):
-    user_prompt = message.get_args()
     # Добавляем ответ от GPT-3.5 к предыдущему сообщению
     await message.reply(result_text)
 
-# Отправляем первое сообщение о том, что ответ готовится
-    await message.reply("""[📶] Ответ уже готов... 
-Вы используете быструю Claude2 модель!""")
+@dp.message_handler(commands=["claude2"])
+async def process_claude2_command(message: types.Message):
+    user_prompt = message.get_args()
+
+    # Отправляем первое сообщение о том, что ответ готовится
+    await message.reply("""[📶] Ответ уже готов... Вы используете быструю Claude2 модель!""")
 
     # Отправляем запрос к API
     data = {
@@ -127,10 +128,10 @@ async def process_claude2_command(message: types.Message):
     result_json = json.loads(response.text)
 
     # Извлекаем текстовый ответ
-    result = result_json.get('reply', 'Произошла ошибка при получении ответа от модели.')
+    result_text = result_json.get('reply', 'Произошла ошибка при получении ответа от модели.')
 
     # Отправляем только текстовый ответ от модели
-    await message.reply(result)
+    await message.reply(result_text)
 
 @dp.message_handler(commands=["sendmessage"])
 async def sendmessage_cmd(message: types.Message):
