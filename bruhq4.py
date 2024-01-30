@@ -8,6 +8,10 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.utils import executor
 import requests
+import asyncio
+from aiogram.types import ParseMode
+
+API_K = 'ddosxd-api-1jq4e9xbzu2ilgn'
 
 bot = Bot(token="6402469481:AAEV5DwRavNsbAuqL_IDMi-yuNtSgfysVFg")
 dp = Dispatcher(bot)
@@ -169,6 +173,31 @@ async def infousers_cmd(message: types.Message):
 Написано /gpt: {gpt_count}
 Написано /sdxl: {sdxl_count}
 Написано /start: {start_count}""")
+
+@dp.message_handler(commands=['pixart'])
+async def pixart_command(message: types.Message):
+    try:
+        prompt = message.get_args()
+        if not prompt:
+            await message.reply("Вы неправильно написали команду.")
+            return
+
+        await message.reply("""[🪄] Ваше изображение уже готово 🔥
+Мы используем самую быструю модель для вашего использования.""")
+
+        data = {
+            'model': 'pixart',
+            'prompt': prompt
+        }
+
+        response = requests.post('https://api.ddosxd.ru/v1/image', headers={'Authorization': API_K}, json=data)
+        image_url = response.json()['photos'][0]
+
+        await bot.send_photo(message.chat.id, photo=image_url)
+    
+    except Exception as e:
+        print(f"Error: {e}")
+
 
 @dp.message_handler(commands=["addfile"])
 async def addfile_cmd(message: types.Message):
