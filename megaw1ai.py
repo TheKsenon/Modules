@@ -12,6 +12,7 @@ import asyncio
 from aiogram.types import ParseMode
 
 API_K = 'ddosxd-api-1jq4e9xbzu2ilgn'
+DDOSXD_API_KEY = 'ddosxd-api-1jq4e9xbzu2ilgn'
 
 bot = Bot(token="6640154150:AAHgZJRXwzsw-jA8ffXoVlhjZXm8oFTyNu4")
 dp = Dispatcher(bot)
@@ -72,6 +73,21 @@ async def gpt_cmd(message: types.Message):
         resp = await client.post("https://opo.k.vu/private/apis/gpt", json={"prompt": args})
         data = resp.text
         await message.reply(f"Ответ GPT 🤖: {data}")
+
+@dp.message_handler(commands=['zephyr'])
+async def zephyr_command(message: types.Message):
+    await message.reply("[🎲] Ваш запрос отправлен. Ждём ответа!\n\nМы используем только быстрые модели!")
+
+    # Your existing code to send request and get response
+    data = {'model': 'zephyr', 'messages': [{'role': 'user', 'content': 'Привет'}]}
+    headers = {'Authorization': DDOSXD_API_KEY}
+    response = requests.post('https://api.ddosxd.ru/v1/chat', headers=headers, json=data)
+    response_data = response.json()
+
+    if response_data.get('status') == 200:
+        reply_text = response_data.get('reply')
+        await message.reply(reply_text, parse_mode=ParseMode.MARKDOWN)
+
 
 @dp.message_handler(commands=["sdxl"])
 async def sdxl_cmd(message: types.Message):
