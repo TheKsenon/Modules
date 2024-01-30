@@ -13,7 +13,7 @@ from aiogram.types import ParseMode
 
 API_K = 'ddosxd-api-1jq4e9xbzu2ilgn'
 
-bot = Bot(token="6402469481:AAEV5DwRavNsbAuqL_IDMi-yuNtSgfysVFg")
+bot = Bot(token="")
 dp = Dispatcher(bot)
 users = set()
 admins = set()
