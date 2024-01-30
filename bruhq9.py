@@ -89,7 +89,6 @@ async def readusers_cmd(message: types.Message):
 {users}""")
 
 @dp.message_handler(commands=['gpt35'])
-async@dp.message_handler(commands=['gpt35'])
 async def generate_response(message: types.Message):
     user_prompt = message.get_args()
 
