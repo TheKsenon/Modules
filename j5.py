@@ -19,7 +19,7 @@ async def get_user_id(message: types.Message):
     replied_user_id = message.reply_to_message.from_user.id
     
     # Формируем ответ
-    reply_text = f"{replied_user_id}"
+    reply_text = f"ID: {replied_user_id}"
     
     # Отправляем ответ
     await message.reply(reply_text)
