@@ -26,4 +26,4 @@ async def get_user_id(message: types.Message):
 
 # Запускаем бота
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True
+    executor.start_polling(dp, skip_updates=True)
