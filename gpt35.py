@@ -5,7 +5,7 @@ import requests
 class GPT35Mod(loader.Module):
     """Модуль для отправки запроса к GPT-3.5 Turbo с использованием промпта.
     
-    🪅 Разработчик: @XenonModules
+    🪅 Разработчик: @officialksenon
 
     🪄 Скачать модуль через .dlmod
     
