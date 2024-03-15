@@ -11,9 +11,8 @@ class GPT35Mod(loader.Module):
     [🔺] Разработчик: @officialksenon / @XenonModules
 
     [😚] Скачать модуль:
-    [‼️] .dls https://raw.githubusercontent.com/TheKsenon/Modules/main/gpt35turbo.py
+    [‼️] .dlm https://raw.githubusercontent.com/TheKsenon/Modules/main/gpt35turbo.py
 
-    .gpt36 - Бесплатный, быстрый GPT 3.5 Turbo
 """
 
     strings = {"name": "GPT35Turbo"}
