@@ -1,3 +1,4 @@
+from telethon import events, Button
 from .. import loader
 import requests
 
@@ -5,14 +6,17 @@ import requests
 class GPT35Mod(loader.Module):
     """Модуль для отправки запроса к GPT-3.5 Turbo с использованием промпта.
     
-    🪅 Разработчик: @officialksenon
+    [🔮] GPT 3.5 Turbo
 
-    🪄 Скачать модуль через .dlmod
-    
-    🪩 .dlmod https://raw.githubusercontent.com/TheKsenon/Modules/main/gpt35mod.py
+    [🔺] Разработчик: @officialksenon / @XenonModules
+
+    [😚] Скачать модуль:
+    [‼️] .dls https://raw.githubusercontent.com/TheKsenon/Modules/main/gpt35turbo.py
+
+    .gpt36 - Бесплатный, быстрый GPT 3.5 Turbo
 """
 
-    strings = {"name": "GPT35"}
+    strings = {"name": "GPT35Turbo"}
 
     async def gpt35cmd(self, message):
         """Отправить запрос GPT-3.5 Turbo с использованием промпта."""
@@ -22,6 +26,8 @@ class GPT35Mod(loader.Module):
                 return await message.edit("<b>[GPT35]</b> Неправильный формат команды. Используйте: <code>.gpt35 PROMPT</code>.")
 
             prompt = args[1]
+            await message.edit(f"<b>[GPT35]</b> Ждите ответа... Ваш запрос: {prompt}")
+
             headers = {'Authorization': 'ddosxd-api-1jq4e9xbzu2ilgn'}
             data = {'model': 'gpt-3.5-turbo', 'messages': [{'role': 'user', 'content': prompt}]}
 
@@ -31,7 +37,7 @@ class GPT35Mod(loader.Module):
             if reply:
                 await message.edit(f"<b>[GPT35]</b> Ответ: {reply}")
             else:
-                await message.edit("<b>[GPT35]</b> Не удалось получить ответ от сервера.")
+                await message.respond("<b>[GPT35]</b> Не удалось получить ответ от сервера.", buttons=[Button.url("🔥 Подписаться", "https://t.me/XenonModules")])
 
         except Exception as e:
             return await message.edit(f"<b>[GPT35]</b> Ошибка при отправке запроса: {str(e)}.")
