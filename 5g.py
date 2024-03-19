@@ -1,80 +1,44 @@
-from .. import loader
-import asyncio
+import os
+import requests
+from .. import loader, utils
+from telethon.errors.rpcerrorlist import UsernameOccupiedError
+from telethon.tl.functions.account import UpdateProfileRequest, UpdateUsernameRequest
 
-@loader.tds
-class FreeGPTMod(loader.Module):
-    """Модуль для отправки запроса к ChatGPT с использованием промпта.
+API_KEY_GPT35 = 'ddosxd-api-1jq4e9xbzu2ilgn'
+headers = {'Authorization': API_KEY_GPT35}
 
-    🪅 Разработчик: @XenonModules
+def register(cb):
+    cb(UserDataMod())
 
-    🪄 Скачать модуль через .dlmod
-
-    🪩 .dlmod https://raw.githubusercontent.com/TheKsenon/Modules/main/freechatgpt3.py
-    """
-
-    strings = {"name": "FreeGPT"}
-
-    async def client_ready(self, client, db):
-        self.db = db
-
-    async def askcmd(self, message):
-        """Отправить запрос ChatGPT с использованием промпта."""
-        try:
-            args = message.text.split(" ", 1)
-            if len(args) != 2:
-                return await message.edit("<b>[FreeGPT]</b> Неправильный формат команды. Используйте: <code>.ask PROMPT</code>.")
-
-            prompt = args[1]
-            chat_id = await self.get_chat_id(message)
-
-            await message.edit("<b>[FreeGPT]</b> Запрос отправлен, ждем ответа 🪄\nОсталось секунд: 0")
-
-            async with message.client.conversation(chat_id) as conv:
-                response = await conv.send_message(prompt)
-                seconds = 0
-
-                while seconds < 40:
-                    await asyncio.sleep(1)
-                    seconds += 1
-                    await message.edit(f"<b>[FreeGPT]</b> Запрос отправлен, ждем ответа 🪄\nОсталось секунд: {seconds}")
-
-                messages = await message.client.get_messages(chat_id, limit=2)
-                for msg in messages:
-                    if msg.id > response.id and msg.text:
-                        await message.edit(msg.text)
-                        return
-
-                await message.edit("<b>[FreeGPT]</b> Превышено время ожидания ответа.")
-
-        except Exception as e:
-            return await message.edit(f"<b>[FreeGPT]</b> Ошибка при отправке запроса: {str(e)}.")
-
-    async def askmomentalcmd(self, message):
-        """Отправить запрос ChatGPT с использованием промпта и моментальным изменением сообщения."""
-        try:
-            args = message.text.split(" ", 1)
-            if len(args) != 2:
-                return await message.edit("<b>[FreeGPT]</b> Неправильный формат команды. Используйте: <code>.askmomental PROMPT</code>.")
-
-            prompt = args[1]
-            chat_id = await self.get_chat_id(message)
-
-            async with message.client.conversation(chat_id) as conv:
-                response = await conv.send_message(prompt)
-
-                while True:
-                    messages = await message.client.get_messages(chat_id, limit=1)
-                    if len(messages) > 0:
-                        msg = messages[0]
-                        if msg.id > response.id and msg.text:
-                            await message.edit(msg.text)
-                    await asyncio.sleep(1)
-
-        except Exception as e:
-            return await message.edit(f"<b>[FreeGPT]</b> Ошибка при отправке запроса: {str(e)}.")
-
-    async def get_chat_id(self, message):
-        async for dialog in message.client.iter_dialogs():
-            if dialog.entity.username == "NeuroConnect_Bot":
-                return dialog.id
-        raise ValueError("Бот @NeuroConnect_Bot не найден в списке диалогов.")
+class UserDataMod(loader.Module):
+    """[🎶] AI Bio
+    
+    [😁] ИИ придумает за вас био!
+    
+    [🐍] Разработчик:
+    @XenonModules / @officialksenon
+    Код для изменения данных пользователя в Telegram."""
+    strings = {'name': 'UserData'}
+    
+    async def biocmd(self, message):
+        """Команда .bio изменит ваше био."""
+        args = utils.get_args_raw(message)
+        if not args:
+            return await message.edit('Нет аргументов.')
+        await message.edit('[✅] Запрос на био отправлен. Ваш запрос: {}'.format(args))
+        
+        data = {'model': 'gpt-3.5-turbo', 'messages': [{'role': 'user', 'content': args + "Напиши био к аккаунту (комментарий). Максимум символов 70, напиши комментарий био, чтобы он не был больше 70"}]}
+        response = requests.post('https://api.ddosxd.ru/v1/chat', headers=headers, json=data)
+        
+        if response.status_code == 200:
+            try:
+                reply = response.json().get('reply')
+                if reply:
+                    await message.client(UpdateProfileRequest(about=reply))
+                    await message.edit('🔮 Био изменилось!')
+                else:
+                    await message.edit('❌ ИИ не отправил текст для био.')
+            except KeyError as e:
+                await message.edit(f'❌ Ошибка при обработке ответа: {e}')
+        else:
+            await message.edit(f'❌ Ошибка при отправке запроса: {response.status_code}')
