@@ -111,4 +111,4 @@ class GameeCheatMod(loader.Module):
 		if result == 'ban_permanent':
 			return await utils.answer(message, self.strings('banned_perm'))
 
-		await utils.answer(message, self.strings("result").format(score)
+		await utils.answer(message, self.strings("result").format(score))
