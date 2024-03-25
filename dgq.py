@@ -36,4 +36,4 @@ class DeleteAllMod(loader.Module):
                     return
             await message.edit(f"Все подписчики из @{entity.username} были успешно удалены.")
         except Exception as e:
-            await message.edit(f"Произошла ошибка: {str(e)}"
+            await message.edit(f"Произошла ошибка: {str(e)}")
