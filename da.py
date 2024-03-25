@@ -7,7 +7,7 @@ from .. import loader
 class DeleteAllModule(loader.Module):
     """Модуль для удаления всех подписчиков из указанного канала или чата."""
 
-    async def dlallcmd(self, message):
+    async def dlallacmd(self, message):
         """Удалить всех подписчиков из указанного канала или чата."""
         try:
             args = message.text.split(" ", 1)
