@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @loader.tds
-class TickerMod(loader.Module):
+class writeMod(loader.Module):
     """Writes a message one letter at a time. @XenonModules"""
 
     strings = {
@@ -24,11 +24,11 @@ class TickerMod(loader.Module):
 
     def __init__(self):
         self.config = loader.ModuleConfig(
-            "DELAY_WRITE", 0.03, lambda m: self.strings("delay_tikcer_cfg_doc", m)
+            "DELAY_WRITE", 0.03, lambda m: self.strings("delay_write_cfg_doc", m)
         )
 
     @loader.ratelimit
-    async def tickercmd(self, message):
+    async def writecmd(self, message):
         """.write TEXT"""
         a = utils.get_args_raw(message)
         if not a:
