@@ -39,4 +39,4 @@ class GPT35Mod(loader.Module):
                 await message.respond("<b>[GPT35]</b> Не удалось получить ответ от сервера.", buttons=[Button.url("🔥 Подписаться", "https://t.me/XenonModules")])
 
         except Exception as e:
-            return await message.edit(f"<b>[GPT35]</b> Ошибка при отправке запроса: ({str(e)}.")
+            return await message.edit(f"<b>[GPT35]</b> Ошибка при отправке запроса.")
