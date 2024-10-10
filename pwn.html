@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>PathAI</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #1e1e1e;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            overflow: hidden;
+        }
+        #sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #3c3c3c;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            box-sizing: border-box;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        #sidebar h2 {
+            margin: 0;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        .button {
+            background-color: #5a5a5a;
+            border: none;
+            color: white;
+            padding: 10px;
+            margin: 0 5px;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .button.active {
+            background-color: #3498db;
+        }
+        .button:hover {
+            background-color: #777;
+        }
+        #gameArea {
+            position: absolute;
+            left: 0;
+            top: 60px;
+            width: 100%;
+            height: calc(100vh - 60px);
+            background-color: #2b2b2b;
+            touch-action: none;
+            cursor: grab;
+        }
+        #swipeText {
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            color: #fff;
+            opacity: 0.2;
+            font-size: 18px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h2>PathAI</h2>
+        <button class="button" onclick="startAI()">Запустить ИИ</button>
+        <button class="button" onclick="setBlockType('wall')">Блок</button>
+        <button class="button" onclick="setBlockType('empty')">Пустой</button>
+        <button class="button" onclick="setBlockType('lava')">Лава</button>
+        <button class="button" onclick="setBlockType('start')">Старт</button>
+        <button class="button" onclick="setBlockType('finish')">Финиш</button>
+        <button class="button" onclick="clearGrid()">Удалить все</button>
+        <button class="button" id="swipeButton" onclick="toggleSwipe()">Свайп</button>
+    </div>
+    <canvas id="gameArea"></canvas>
+    <div id="swipeText">Свайпинг</div>
+    <script>
+        const canvas = document.getElementById('gameArea');
+        const ctx = canvas.getContext('2d');
+        const swipeText = document.getElementById('swipeText');
+        const swipeButton = document.getElementById('swipeButton');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight - 60;
+
+        const gridSize = 40;
+        const rows = 100;
+        const cols = 100;
+
+        let offsetX = 0;
+        let offsetY = 0;
+
+        let isDragging = false;
+        let isSwiping = false;
+        let dragStartX, dragStartY;
+
+        let grid = [];
+        let blockType = 'empty';
+        let aiPath = [];
+        let lavaPositions = [];
+
+        // Инициализация сетки
+        for(let y = 0; y < rows; y++) {
+            grid[y] = [];
+            for(let x = 0; x < cols; x++) {
+                grid[y][x] = { type: 'empty' };
+            }
+        }
+
+        let startPoint = null;
+        let finishPoint = null;
+
+        // Рисование сетки
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const startCol = Math.floor(offsetX / gridSize);
+            const startRow = Math.floor(offsetY / gridSize);
+            const endCol = startCol + Math.ceil(canvas.width / gridSize);
+            const endRow = startRow + Math.ceil(canvas.height / gridSize);
+
+            for(let y = startRow; y < endRow; y++) {
+                for(let x = startCol; x < endCol; x++) {
+                    if(y >= 0 && y < rows && x >= 0 && x < cols) {
+                        switch(grid[y][x].type) {
+                            case 'empty':
+                                ctx.fillStyle = '#2b2b2b';
+                                break;
+                            case 'wall':
+                                ctx.fillStyle = '#555';
+                                break;
+                            case 'lava':
+                                ctx.fillStyle = '#e74c3c';
+                                break;
+                            case 'start':
+                                ctx.fillStyle = '#27ae60';
+                                break;
+                            case 'finish':
+                                ctx.fillStyle = '#f1c40f';
+                                break;
+                        }
+                        ctx.fillRect(x * gridSize - offsetX, y * gridSize - offsetY, gridSize, gridSize);
+                        ctx.strokeStyle = '#444';
+                        ctx.strokeRect(x * gridSize - offsetX, y * gridSize - offsetY, gridSize, gridSize);
+                    }
+                }
+            }
+
+            // Рисование ИИ
+            if(aiPosition) {
+                ctx.fillStyle = '#27ae60';
+                ctx.fillRect(aiPosition.x * gridSize - offsetX, aiPosition.y * gridSize - offsetY, gridSize, gridSize);
+            }
+        }
+
+        // Установка типа блока
+        function setBlockType(type) {
+            blockType = type;
+            document.querySelectorAll('.button').forEach(btn => btn.classList.remove('active'));
+            if(type !== 'swipe') {
+                isSwiping = false;
+                swipeButton.classList.remove('active');
+            }
+            const buttonsMap = {
+                'empty': 'Пустой',
+                'wall': 'Блок',
+                'lava': 'Лава',
+                'start': 'Старт',
+                'finish': 'Финиш'
+            };
+            let buttonText = buttonsMap[type];
+            document.querySelectorAll('.button').forEach(btn => {
+                if(btn.textContent === buttonText) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Очистка сетки
+        function clearGrid() {
+            for(let y = 0; y < rows; y++) {
+                for(let x = 0; x < cols; x++) {
+                    grid[y][x].type = 'empty';
+                }
+            }
+            startPoint = null;
+            finishPoint = null;
+            aiPosition = null;
+            drawGrid();
+        }
+
+        // Переключение режима свайпа
+        function toggleSwipe() {
+            isSwiping = !isSwiping;
+            if(isSwiping) {
+                swipeButton.classList.add('active');
+                showSwipeText();
+            } else {
+                swipeButton.classList.remove('active');
+                hideSwipeText();
+            }
+        }
+
+        // Обработка свайпа для перемещения по уровню или размещения блоков
+        canvas.addEventListener('pointerdown', function(e) {
+            canvas.setPointerCapture(e.pointerId);
+            if(isSwiping) {
+                isDragging = true;
+                dragStartX = e.clientX + offsetX;
+                dragStartY = e.clientY + offsetY;
+                showSwipeText();
+            } else {
+                placeBlock(e);
+            }
+        });
+
+        canvas.addEventListener('pointermove', function(e) {
+            if(isDragging) {
+                offsetX = dragStartX - e.clientX;
+                offsetY = dragStartY - e.clientY;
+                drawGrid();
+            } else if(!isSwiping && e.pressure > 0) {
+                placeBlock(e);
+            }
+        });
+
+        canvas.addEventListener('pointerup', function(e) {
+            canvas.releasePointerCapture(e.pointerId);
+            isDragging = false;
+            setTimeout(hideSwipeText, 2000);
+        });
+
+        function placeBlock(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX + offsetX - rect.left) / gridSize);
+            const y = Math.floor((e.clientY + offsetY - rect.top) / gridSize);
+
+            if(x < 0 || x >= cols || y < 0 || y >= rows) return;
+
+            if(blockType === 'start') {
+                if(startPoint) grid[startPoint.y][startPoint.x].type = 'empty';
+                startPoint = { x, y };
+            }
+            if(blockType === 'finish') {
+                if(finishPoint) grid[finishPoint.y][finishPoint.x].type = 'empty';
+                finishPoint = { x, y };
+            }
+
+            grid[y][x].type = blockType;
+            drawGrid();
+        }
+
+        // Показ текста "Свайпинг"
+        function showSwipeText() {
+            swipeText.style.display = 'block';
+        }
+
+        function hideSwipeText() {
+            swipeText.style.display = 'none';
+        }
+
+        // Алгоритм A* для поиска пути
+        function findPath() {
+            if(!startPoint || !finishPoint) return [];
+            let openSet = [];
+            let closedSet = [];
+            let startNode = { x: startPoint.x, y: startPoint.y, g: 0, h: 0, f: 0, parent: null };
+            let finishNode = { x: finishPoint.x, y: finishPoint.y };
+            openSet.push(startNode);
+
+            while(openSet.length > 0) {
+                let current = openSet.reduce((a, b) => a.f < b.f ? a : b);
+
+                if(current.x === finishNode.x && current.y === finishNode.y) {
+                    let path = [];
+                    let temp = current;
+                    while(temp.parent) {
+                        path.push({ x: temp.x, y: temp.y });
+                        temp = temp.parent;
+                    }
+                    path.push({ x: startPoint.x, y: startPoint.y });
+                    return path.reverse();
+                }
+
+                openSet.splice(openSet.indexOf(current), 1);
+                closedSet.push(current);
+
+                let neighbors = getNeighbors(current);
+
+                for(let neighbor of neighbors) {
+                    if(closedSet.some(n => n.x === neighbor.x && n.y === neighbor.y)) continue;
+                    if(grid[neighbor.y][neighbor.x].type === 'wall' || grid[neighbor.y][neighbor.x].type === 'lava') continue;
+
+                    let gScore = current.g + 1;
+                    let openNode = openSet.find(n => n.x === neighbor.x && n.y === neighbor.y);
+
+                    if(!openNode) {
+                        neighbor.g = gScore;
+                        neighbor.h = heuristic(neighbor, finishNode);
+                        neighbor.f = neighbor.g + neighbor.h;
+                        neighbor.parent = current;
+                        openSet.push(neighbor);
+                    } else if(gScore < openNode.g) {
+                        openNode.g = gScore;
+                        openNode.f = openNode.g + openNode.h;
+                        openNode.parent = current;
+                    }
+                }
+            }
+
+            return [];
+        }
+
+        function heuristic(a, b) {
+            return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+        }
+
+        function getNeighbors(node) {
+            let neighbors = [];
+            let dirs = [
+                { x: 0, y: -1 },
+                { x: 1, y: 0 },
+                { x: 0, y: 1 },
+                { x: -1, y: 0 }
+            ];
+            for(let dir of dirs) {
+                let x = node.x + dir.x;
+                let y = node.y + dir.y;
+                if(x >= 0 && x < cols && y >= 0 && y < rows) {
+                    neighbors.push({ x, y });
+                }
+            }
+            return neighbors;
+        }
+
+        // Запуск ИИ
+        function startAI() {
+            aiPath = findPath();
+            if(aiPath.length > 0) {
+                aiPosition = { x: startPoint.x, y: startPoint.y };
+                aiIndex = 1;
+                moveAI();
+            }
+        }
+
+        let aiPosition = null;
+        let aiIndex = 0;
+
+        function moveAI() {
+            if(aiIndex >= aiPath.length) return;
+            let target = aiPath[aiIndex];
+
+            let dx = target.x - aiPosition.x;
+            let dy = target.y - aiPosition.y;
+
+            aiPosition.x += dx * 0.1;
+            aiPosition.y += dy * 0.1;
+
+            if(Math.abs(aiPosition.x - target.x) < 0.1 && Math.abs(aiPosition.y - target.y) < 0.1) {
+                aiPosition.x = target.x;
+                aiPosition.y = target.y;
+                aiIndex++;
+            }
+
+            // Проверка на лаву
+            if(grid[Math.floor(aiPosition.y)][Math.floor(aiPosition.x)].type === 'lava') {
+                alert('ИИ был уничтожен лавой!');
+                aiPosition = null;
+                return;
+            }
+
+            drawGrid();
+            requestAnimationFrame(moveAI);
+        }
+
+        // Анимация лавы
+        function animateLava() {
+            for(let y = rows - 1; y >= 0; y--) {
+                for(let x = 0; x < cols; x++) {
+                    if(grid[y][x].type === 'lava') {
+                        grid[y][x].type = 'empty';
+                        let newY = y + 1 < rows ? y + 1 : 0;
+                        if(grid[newY][x].type === 'empty' || grid[newY][x].type === 'start' || grid[newY][x].type === 'finish') {
+                            grid[newY][x].type = 'lava';
+                        } else {
+                            grid[y][x].type = 'lava';
+                        }
+                    }
+                }
+            }
+            drawGrid();
+        }
+
+        setInterval(animateLava, 1000);
+
+        // Обновление размера канваса при изменении размера окна
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight - 60;
+            drawGrid();
+        });
+
+        // Начальный рендер сетки
+        drawGrid();
+    </script>
+</body>
+      </html>
+      
